@@ -3,8 +3,8 @@ Import-Module "$PSScriptRoot/../helpers/Common.Helpers.psm1"
 Describe "Dotnet and tools" {
     BeforeAll {
         $env:PATH = "/etc/skel/.dotnet/tools:$($env:PATH)"
-        $dotnetSDKs = dotnet --list-sdks
-        $dotnetRuntimes = dotnet --list-runtimes
+        $dotnetSDKs = dotnet --list-sdks | ConvertTo-Json
+        $dotnetRuntimes = dotnet --list-runtimes | ConvertTo-Json
     }
 
     $dotnetVersions = (Get-ToolsetContent).dotnet.versions
@@ -20,11 +20,11 @@ Describe "Dotnet and tools" {
             $dotnet = @{ dotnetVersion = $version }
 
             It "SDK <dotnetVersion> is available" -TestCases $dotnet {
-                $dotnetSDKs | Should -Match "$dotnetVersion\.[0-9]*"
+                (dotnet --list-sdks | Where-Object { $_ -match "${dotnetVersion}\.[0-9]*" }).Count | Should -BeGreaterThan 0
             }
 
             It "Runtime <dotnetVersion> is available" -TestCases $dotnet {
-                $dotnetRuntimes | Should -Match "$dotnetVersion\.[0-9]*"
+                (dotnet --list-runtimes | Where-Object { $_ -match "${dotnetVersion}\.[0-9]*" }).Count | Should -BeGreaterThan 0
             }
         }
     }
