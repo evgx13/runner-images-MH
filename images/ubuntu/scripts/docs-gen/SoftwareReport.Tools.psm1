@@ -246,6 +246,10 @@ function Get-ORASCliVersion {
     return $orasVersion
 }
 
+function Get-UVversion {
+    return $(uv --version) | Get-StringPart -Part 1
+}
+
 function Get-VerselCliversion {
     $result = Get-CommandResult "vercel --version" -Multiline
     return $result.Output | Select-Object -Skip 1 -First 1
