@@ -153,6 +153,7 @@ if ((Test-IsUbuntu20) -or (Test-IsUbuntu22)) {
     $tools.AddToolVersion("SVN", $(Get-SVNVersion))
     $tools.AddToolVersion("Terraform", $(Get-TerraformVersion))
 }
+$tools.AddToolVersion("uv", $(Get-uvVersion))
 $tools.AddToolVersion("yamllint", $(Get-YamllintVersion))
 $tools.AddToolVersion("yq", $(Get-YqVersion))
 $tools.AddToolVersion("zstd", $(Get-ZstdVersion))

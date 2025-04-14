@@ -266,6 +266,10 @@ function Get-SphinxVersion {
     return $sphinxVersion
 }
 
+function Get-uvVersion {
+    return $(uv --version) | Get-StringPart -Part 1
+}
+
 function Get-YamllintVersion {
     return $(yamllint --version) | Get-StringPart -Part 1
 }
