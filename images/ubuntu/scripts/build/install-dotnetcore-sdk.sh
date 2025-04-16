@@ -31,7 +31,7 @@ dotnet_tools=$(get_toolset_value '.dotnet.tools[].name')
 # Disable telemetry
 export DOTNET_CLI_TELEMETRY_OPTOUT=1
 
-if is_ubuntu24; then
+if ! is_ubuntu_24; then
 # Add .NET Backports repository and update apt
 
 echo "Adding .NET Backports repository"
