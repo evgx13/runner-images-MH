@@ -31,15 +31,6 @@ dotnet_tools=$(get_toolset_value '.dotnet.tools[].name')
 # Disable telemetry
 export DOTNET_CLI_TELEMETRY_OPTOUT=1
 
-if ! is_ubuntu_24; then
-# Add .NET Backports repository and update apt
-
-echo "Adding .NET Backports repository"
-
-sudo add-apt-repository ppa:dotnet/backports
-
-sudo apt update
-fi
 
 # Install .NET SDK from apt
 # There is a versions conflict, that leads to
