@@ -1,6 +1,7 @@
 name: Install and Show UV Version
 
 on: [push, pull_request]
+
 jobs:
   install-and-show-version:
     runs-on: ubuntu-latest
@@ -20,8 +21,13 @@ jobs:
           python -m pipx ensurepath
           export PATH=$PATH:~/.local/bin
 
-      - name: Install uv using pipx
-        run: pipx install uv
+      - name: Install uv using pipx and measure time
+        run: |
+          START_TIME=$(date +%s)
+          pipx install uv
+          END_TIME=$(date +%s)
+          echo "UV installation took $((END_TIME - START_TIME)) seconds."
 
       - name: Show UV version
         run: uv --version
+        
