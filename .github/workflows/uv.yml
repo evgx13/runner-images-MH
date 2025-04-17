@@ -1,0 +1,41 @@
+name: Install UV Tool with pipx on Ubuntu 24.04
+
+on:
+  push:
+    branches:
+      - uv_testing
+  pull_request:
+
+jobs:
+  install-uv:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Update and install pipx
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3-pip python3-venv
+          pip install --user pipx
+          python3 -m pipx ensurepath
+
+      - name: Measure installation time and size
+        run: |
+          # Record start time
+          START_TIME=$(date +%s)
+
+          # Install UV tool with pipx
+          pipx install uv
+
+          # Record end time
+          END_TIME=$(date +%s)
+
+          # Calculate time taken
+          TIME_TAKEN=$((END_TIME - START_TIME))
+          echo "Installation Time: $TIME_TAKEN seconds"
+
+          # Check installation size
+          UV_PATH=$(pipx list | grep -oP '(?<=home.*: ).*uv')  # Extract UV tool installation path
+          du -sh "$UV_PATH" | awk '{print "Tool Size: "$1}'
