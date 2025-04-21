@@ -14,7 +14,7 @@ source $HELPER_SCRIPTS/os.sh
 if ! is_ubuntu22; then
     install_packages=(podman buildah skopeo)
 else
-    install_packages=(podman=3.4.4+ds1-1ubuntu1 buildah skopeo)
+    install_packages=(podman=3.4.4+ds1-1ubuntu1 buildah skopeo containernetworking-plugins)
 fi
 
 # Packages is available in the official Ubuntu upstream starting from Ubuntu 21
