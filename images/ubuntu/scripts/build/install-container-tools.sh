@@ -29,7 +29,7 @@ fi
 
 # Install podman, buildah, skopeo container's tools
 apt-get update
-apt-get install ${install_packages[@]}
+apt-get install ${install_packages[@]} containernetworking-plugins
 mkdir -p /etc/containers
 printf "[registries.search]\nregistries = ['docker.io', 'quay.io']\n" | tee /etc/containers/registries.conf
 
