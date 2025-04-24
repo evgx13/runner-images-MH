@@ -20,10 +20,10 @@ jobs:
         run: |
           # Add the CRAN repository for R version 4.1
           echo "deb https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/" | sudo tee -a /etc/apt/sources.list.d/cran-r.list
-          
-          # Add the GPG key for the R repository
-          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9
-  
+
+          # Add the GPG key for the CRAN repository
+          sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 51716619E084DAB9
+
       - name: Install R Version 4.1
         run: |
           sudo apt-get update
