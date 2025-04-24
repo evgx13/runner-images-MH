@@ -1,17 +1,23 @@
-name: Install R 4.1
+name: Downgrade R Version
 
 on: [push, pull_request]
 
 jobs:
-  install-r:
+  downgrade-r:
     runs-on: ubuntu-22.04
 
     steps:
-    - name: Checkout repo
-      uses: actions/checkout@v4
+      - name: Checkout Repository
+        uses: actions/checkout@v4
 
-    - name: Make install script executable
-      run: chmod +x install-rlang.sh
+      - name: Remove Existing R Version
+        run: |
+          sudo apt-get remove --purge -y r-base r-base-dev
+          sudo apt-get autoremove -y
+          sudo apt-get clean
 
-    - name: Install R 4.1
-      run: sudo ./install-rlang.sh
+      - name: Add R Repository for Version 4.1
+        run: |
+          # Add the CRAN repository for Ubuntu 20.04 (focal)
+          echo "deb https://cloud.r-project.org/bin/linux/ubuntu focal-cran40
+
