@@ -38,6 +38,17 @@ get_chromium_revision() {
 CHROME_DEB_URL="https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb"
 chrome_deb_path=$(download_with_retry "$CHROME_DEB_URL")
 apt-get install "$chrome_deb_path" -f
+
+# Ensure chrome-sandbox is set up correctly for secure headless usage
+CHROME_SANDBOX="/opt/google/chrome/chrome-sandbox"
+if [ -f "$CHROME_SANDBOX" ]; then
+  echo "Configuring chrome-sandbox permissions..."
+  chmod 4755 "$CHROME_SANDBOX"
+  chown root:root "$CHROME_SANDBOX"
+else
+  echo "Warning: chrome-sandbox not found at $CHROME_SANDBOX"
+fi
+
 set_etc_environment_variable "CHROME_BIN" "/usr/bin/google-chrome"
 
 # Remove Google Chrome repo
