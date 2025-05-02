@@ -1,0 +1,19 @@
+name: Install Chromium on Ubuntu 24.04
+
+on: [push, pull_request]
+
+jobs:
+  install-chromium:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Update and Install Chromium
+        run: |
+          sudo apt-get update
+          sudo snap install chromium
+          
+      - name: Verify Chromium Installation
+        run: |
+          chromium --version
