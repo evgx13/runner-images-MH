@@ -1,0 +1,26 @@
+name: Install Python on Windows
+
+on: [push, pull_request]
+
+jobs:
+  install-python:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x' # Replace with the specific version you need, e.g., '3.10'
+
+    - name: Verify Python Installation
+      run: |
+        python --version
+        pip --version
+
+    - name: Install Dependencies
+      run: |
+        pip install --upgrade pip
+        pip install -r requirements.txt # Ensure you have a requirements.txt file
