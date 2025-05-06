@@ -1,63 +1,38 @@
+#!/bin/bash -e
 ################################################################################
-##  File:  Install-Firefox.ps1
-##  Desc:  Install Mozilla Firefox browser and Gecko WebDriver
-##  Supply chain security: Firefox browser - checksum validation
+##  File:  install-firefox.sh
+##  Desc:  Install Firefox
 ################################################################################
+# Source the helpers for use with the script
+source $HELPER_SCRIPTS/install.sh
+source $HELPER_SCRIPTS/etc-environment.sh
 
-# Install and configure Firefox browser
-Write-Host "Get the latest Firefox version..."
-$versionsManifest = Invoke-RestMethod "https://product-details.mozilla.org/1.0/firefox_versions.json"
+# Use Mozilla's official apt repo:
+# https://support.mozilla.org/en-US/kb/install-firefox-linux#w_install-firefox-deb-package-for-debian-based-distributions-recommended
 
-Write-Host "Install Firefox browser..."
-$installerUrl = "https://download.mozilla.org/?product=firefox-$($versionsManifest.LATEST_FIREFOX_VERSION)&os=win64&lang=en-US"
-$hashUrl = "https://archive.mozilla.org/pub/firefox/releases/$($versionsManifest.LATEST_FIREFOX_VERSION)/SHA256SUMS"
+REPO_URL="https://packages.mozilla.org/apt"
+GPG_KEY="/usr/share/keyrings/packages.mozilla.org.asc"
+REPO_PATH="/etc/apt/sources.list.d/mozilla.list"
 
-$externalHash = Get-ChecksumFromUrl -Type "SHA256" `
-    -Url $hashUrl `
-    -FileName "win64/en-US/Firefox Setup*exe"
+# Install Firefox
+curl -fsSL https://packages.mozilla.org/apt/repo-signing-key.gpg -o $GPG_KEY
+echo "deb [signed-by=$GPG_KEY] $REPO_URL mozilla main" > $REPO_PATH
 
-Install-Binary -Type EXE `
-    -Url $installerUrl `
-    -InstallArgs @("/silent", "/install") `
-    -ExpectedSHA256Sum $externalHash
+apt-get update
+apt-get install --target-release mozilla firefox
+rm $REPO_PATH
 
-Write-Host "Disable autoupdate..."
-$firefoxDirectoryPath = Join-Path $env:ProgramFiles "Mozilla Firefox"
-New-Item -path $firefoxDirectoryPath -Name 'mozilla.cfg' -Value '//
-pref("browser.shell.checkDefaultBrowser", false);
-pref("app.update.enabled", false);' -ItemType file -force
+# Document apt source repo's
+echo "mozilla $REPO_URL" >> $HELPER_SCRIPTS/apt-sources.txt
 
-$firefoxPreferencesFolder = Join-Path $firefoxDirectoryPath "defaults\pref"
-New-Item -path $firefoxPreferencesFolder -Name 'local-settings.js' -Value 'pref("general.config.obscure_value", 0);
-pref("general.config.filename", "mozilla.cfg");' -ItemType file -force
-
-# Download and install Gecko WebDriver
-Write-Host "Install Gecko WebDriver..."
-$geckoDriverPath = "$($env:SystemDrive)\SeleniumWebDrivers\GeckoDriver"
-if (-not (Test-Path -Path $geckoDriverPath)) {
-    New-Item -Path $geckoDriverPath -ItemType Directory -Force
-}
-
-Write-Host "Get the Gecko WebDriver version..."
-$geckoDriverVersion = (Get-GithubReleasesByVersion -Repo "mozilla/geckodriver" -Version "latest").version
-$geckoDriverVersion | Out-File -FilePath "$geckoDriverPath\versioninfo.txt" -Force
-
-Write-Host "Download Gecko WebDriver WebDriver..."
-$geckoDriverDownloadUrl = Resolve-GithubReleaseAssetUrl `
-    -Repo "mozilla/geckodriver" `
-    -Version $geckoDriverVersion `
-    -UrlMatchPattern "geckodriver-*-win64.zip"
-$geckoDriverArchPath = Invoke-DownloadWithRetry $geckoDriverDownloadUrl
-
-Write-Host "Expand Gecko WebDriver archive..."
-Expand-7ZipArchive -Path $geckoDriverArchPath -DestinationPath $geckoDriverPath
-
-# Validate Gecko WebDriver signature
-$geckoDriverSignatureThumbprint = "6663D5C4FDAF9EFD5F823A26C9C410DC9928C44A"
-Test-FileSignature -Path "$geckoDriverPath/geckodriver.exe" -ExpectedThumbprint $geckoDriverSignatureThumbprint
-
-Write-Host "Setting the environment variables..."
-Add-MachinePathItem -PathItem $geckoDriverPath
-[Environment]::SetEnvironmentVariable("GeckoWebDriver", $geckoDriverPath, "Machine")
-
-Invoke-PesterTests -TestFile "Browsers" -TestName "Firefox"
+# Download and unpack latest release of geckodriver
+download_url=$(resolve_github_release_asset_url "mozilla/geckodriver" "test(\"linux64.tar.gz$\")" "latest")
+driver_archive_path=$(download_with_retry "$download_url")
+GECKODRIVER_DIR="/usr/local/share/gecko_driver"
+GECKODRIVER_BIN="$GECKODRIVER_DIR/geckodriver"
+mkdir -p $GECKODRIVER_DIR
+tar -xzf "$driver_archive_path" -C $GECKODRIVER_DIR
+chmod +x $GECKODRIVER_BIN
+ln -s "$GECKODRIVER_BIN" /usr/bin/
+set_etc_environment_variable "GECKOWEBDRIVER" "${GECKODRIVER_DIR}"
+invoke_tests "Browsers" "Firefox"
