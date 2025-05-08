@@ -11,7 +11,7 @@ jobs:
 
       - name: Update and Install Chromium
         run: |
-          snap install chromium
+          sudo snap install chromium
           
       - name: Verify Chromium Installation
         run: |
