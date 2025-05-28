@@ -14,6 +14,13 @@ jobs:
         with:
           ref: main
 
+      - name: Verify Dockerfile exists
+        run: |
+          if [ ! -f images/ubuntu/templates/Dockerfile ]; then
+            echo "ERROR: Dockerfile not found at images/ubuntu/templates/Dockerfile"
+            exit 1
+          fi
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
