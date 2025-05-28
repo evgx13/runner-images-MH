@@ -1,0 +1,39 @@
+name: Build Ubuntu Image
+on: [push, pull_request]
+
+jobs:
+  build-image:
+    runs-on: ubuntu-latest
+    env:
+      UBUNTU_VERSION: "24.04"
+      IMAGE_NAME: "custom-ubuntu:${{ github.run_number }}"
+    steps:
+      - name: Checkout main branch
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Set up QEMU (for multi-arch builds, if needed)
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Ubuntu image with latest version
+        run: |
+          docker build \
+            --build-arg UBUNTU_VERSION=${UBUNTU_VERSION} \
+            -t $IMAGE_NAME \
+            -f images/ubuntu/templates/Dockerfile \
+            images/ubuntu/templates
+
+      - name: Run install-php.sh (simulate failure)
+        run: |
+          bash images/ubuntu/scripts/build/install-php.sh
+        continue-on-error: true
+
+      - name: Check build/install-php.sh result
+        if: ${{ failure() }}
+        run: |
+          echo "Failure detected in install-php.sh"
+          exit 1
