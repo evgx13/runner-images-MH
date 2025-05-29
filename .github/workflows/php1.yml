@@ -26,7 +26,7 @@ jobs:
       #   run: echo "HELPER_SCRIPTS=$HOME/helpers" >> $GITHUB_ENV
 
       - name: Make install-php.sh executable
-        run: chmod +x scripts/build/install-php.sh
+        run: chmod +x images/ubuntu/scripts/build/install-php.sh
 
       - name: Run install-php.sh
         run: |
