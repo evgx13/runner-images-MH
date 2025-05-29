@@ -26,12 +26,12 @@ jobs:
       #   run: echo "HELPER_SCRIPTS=$HOME/helpers" >> $GITHUB_ENV
 
       - name: Make install-php.sh executable
-        run: chmod +x scripts/install-php.sh
+        run: chmod +x scripts/build/install-php.sh
 
       - name: Run install-php.sh
         run: |
           export HELPER_SCRIPTS=$HOME/helpers
-          sudo -E scripts/install-php.sh
+          sudo -E scripts/helpers/install-php.sh
 
       - name: Verify PHP installation
         run: |
