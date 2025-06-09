@@ -4,15 +4,10 @@ on: [push, pull_request]
 
 jobs:
   wsl-minimal:
-    runs-on: windows-2022
+    runs-on: self-hosted
     steps:
       - name: Show WSL info
-        shell: pwsh
-        run: |
-          wsl --list --verbose || echo "No WSL distributions installed."
+        run: wsl --list --verbose
 
-      - name: Try to run Python in WSL
-        shell: pwsh
-        run: |
-          wsl python3 --version || echo "Python not available in WSL."
-          wsl python3 -c "print('WSL Python ran successfully')" || echo "Python command failed in WSL."
+      - name: Run Python in WSL
+        run: wsl python3 -c "print('WSL Python ran successfully')"
