@@ -1,0 +1,25 @@
+name: WSL Python Simple Script Test
+
+on: [push, pull_request]
+jobs:
+  wsl-python-test:
+    runs-on: windows-2022
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up test Python script
+        run: |
+          echo "print('Hello from WSL Python!')" > test_script.py
+
+      - name: Run simple Python script in WSL
+        shell: pwsh
+        run: |
+          wsl --set-default-version 2
+          # Ensure Python is installed; most WSL distros have it, or install if missing
+          wsl python3 --version || wsl sudo apt-get update && wsl sudo apt-get install -y python3
+          # Run the script
+          wsl python3 test_script.py
+
+      - name: Check for hang and exit
+        run: echo "WSL Python script finished successfully."
