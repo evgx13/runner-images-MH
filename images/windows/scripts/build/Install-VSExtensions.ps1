@@ -20,7 +20,7 @@ $vsixPackagesList | ForEach-Object {
     } else {
         Install-Binary `
             -Url $vsixPackage.DownloadUri `
-            -InstallArgs @('/install', '/quiet', '/norestart')
+            -InstallArgs @('/quiet', '/norestart')
     }
 }
 
