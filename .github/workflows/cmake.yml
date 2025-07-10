@@ -1,0 +1,19 @@
+name: Install CMake on Windows 2022
+
+on: [push, pull_request]
+
+jobs:
+  install-cmake:
+    runs-on: windows-2022
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install CMake (latest)
+        uses: jwlawson/actions-setup-cmake@v2
+        with:
+          cmake-version: 'latest'
+
+      - name: Verify CMake installation
+        run: cmake --version
