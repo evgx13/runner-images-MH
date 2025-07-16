@@ -1,34 +1,31 @@
-name: Download Kotlin Compiler Release Asset
+name: Install Kotlin and Run Tests
 
 on: [push, pull_request]
 
 jobs:
-  download-kotlin-compiler:
-    runs-on: ubuntu-latest
+  install-kotlin:
+    runs-on: ubuntu-22.04
     steps:
-      - name: Checkout
+      - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Set up jq
-        run: sudo apt-get update && sudo apt-get install -y jq
-
-      - name: Get latest Kotlin release asset URL
-        id: get_url
+      - name: Set up helper scripts
         run: |
-          repo="JetBrains/kotlin"
-          query='contains("kotlin-compiler") and endswith(".zip")'
-          # Get latest release info from GitHub API
-          latest_release=$(curl -s "https://api.github.com/repos/$repo/releases/latest")
-          # Filter assets based on query (jq filter)
-          asset_url=$(echo "$latest_release" | jq -r \
-            '.assets[] | select(.name | contains("kotlin-compiler") and endswith(".zip")) | .browser_download_url')
-          if [[ -z "$asset_url" ]]; then
-            echo "No matching asset found."
-            exit 1
-          fi
-          echo "download_url=$asset_url" >> "$GITHUB_OUTPUT"
+          mkdir -p $HOME/helpers
+          cp -r $GITHUB_WORKSPACE/HELPER_SCRIPTS/* $HOME/helpers/
+        shell: bash
 
-      - name: Download Kotlin Compiler zip
+      - name: Export HELPER_SCRIPTS environment variable
+        run: echo "HELPER_SCRIPTS=$HOME/helpers" >> $GITHUB_ENV
+
+      - name: Run install-kotlin.sh
         run: |
-          url="${{ steps.get_url.outputs.download_url }}"
-          wget "$url" -O kotlin-compiler.zip
+          chmod +x install-kotlin.sh
+          ./install-kotlin.sh
+        shell: bash
+
+      - name: Verify kotlin installation
+        run: |
+          kotlin -version
+          kotlinc -version
+        shell: bash
