@@ -1,0 +1,34 @@
+name: Download Kotlin Compiler Release Asset
+
+on: [push, pull_request]
+
+jobs:
+  download-kotlin-compiler:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Get latest Kotlin release asset URL
+        id: get_url
+        run: |
+          repo="JetBrains/kotlin"
+          query='contains("kotlin-compiler") and endswith(".zip")'
+          # Get latest release info from GitHub API
+          latest_release=$(curl -s "https://api.github.com/repos/$repo/releases/latest")
+          # Filter assets based on query (jq filter)
+          asset_url=$(echo "$latest_release" | jq -r \
+            '.assets[] | select(.name | contains("kotlin-compiler") and endswith(".zip")) | .browser_download_url')
+          if [[ -z "$asset_url" ]]; then
+            echo "No matching asset found."
+            exit 1
+          fi
+          echo "download_url=$asset_url" >> "$GITHUB_OUTPUT"
+
+      - name: Download Kotlin Compiler zip
+        run: |
+          url="${{ steps.get_url.outputs.download_url }}"
+          wget "$url" -O kotlin-compiler.zip
