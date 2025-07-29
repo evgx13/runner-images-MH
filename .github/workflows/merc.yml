@@ -14,6 +14,9 @@ jobs:
             iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
           }
 
+      - name: Refresh Chocolatey package index (optional)
+        run: choco upgrade chocolatey --yes
+
       - name: Install Mercurial (latest) from Chocolatey
         run: choco install mercurial --yes --no-progress
 
