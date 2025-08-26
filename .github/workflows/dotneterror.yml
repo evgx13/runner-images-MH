@@ -1,0 +1,19 @@
+name: Setup .NET and ClangSharpPInvokeGenerator
+
+on: [push, pull_request]
+
+jobs:
+  setup-tools:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 9.x
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 9.x
+
+      - name: Install ClangSharpPInvokeGenerator tool globally
+        shell: bash
+        run: dotnet tool install --global ClangSharpPInvokeGenerator
