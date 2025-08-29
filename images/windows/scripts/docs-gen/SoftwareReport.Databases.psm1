@@ -23,6 +23,8 @@ function Get-MongoDBTable
     $name = "MongoDB"
     if (Test-IsWin25) {
         $command = "mongod"
+    } elseif (Test-IsWin22) {
+        $command = "mongosh"
     } else {
         $command = "mongo"
     }
