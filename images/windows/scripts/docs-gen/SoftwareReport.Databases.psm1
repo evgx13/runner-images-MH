@@ -24,7 +24,7 @@ function Get-MongoDBTable
     if (Test-IsWin25) {
         $command = "mongod"
     } else {
-        $command = "mongo"
+        $command = "mongosh"
     }
     $mongoService = Get-Service -Name $name
     $mongoVersion = (Get-Command -Name $command).Version.ToString()
