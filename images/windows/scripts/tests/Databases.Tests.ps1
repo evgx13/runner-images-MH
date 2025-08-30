@@ -3,9 +3,7 @@ Describe "MongoDB" {
         It "<ToolName>" -TestCases @(
             if (Test-IsWin25 -or Test-IsWin22) {
                 @{ ToolName = "mongos" }
-            } else {
-                @{ ToolName = "mongo" }
-            }
+            } 
             @{ ToolName = "mongod" }
         ) {
             $toolsetVersion = (Get-ToolsetContent).mongodb.version
