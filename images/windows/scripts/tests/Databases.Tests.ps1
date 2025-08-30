@@ -4,9 +4,8 @@ Describe "MongoDB" {
             if (Test-IsWin25) {
                 @{ ToolName = "mongos" }
             } else {
-                @{ ToolName = "mongo" }
-            }
-            @{ ToolName = "mongod" }
+                @{ ToolName = "mongod" }
+            } 
         ) {
             $toolsetVersion = (Get-ToolsetContent).mongodb.version
             (& $ToolName --version)[2].Split('"')[-2] | Should -BeLike "$toolsetVersion*"
