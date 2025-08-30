@@ -5,6 +5,7 @@ Describe "MongoDB" {
                 @{ ToolName = "mongos" }
             } else {
                @{ ToolName = "mongod" }
+            }
         ) {
             $toolsetVersion = (Get-ToolsetContent).mongodb.version
             (& $ToolName --version)[2].Split('"')[-2] | Should -BeLike "$toolsetVersion*"
