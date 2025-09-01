@@ -1,17 +1,17 @@
 Describe "MongoDB" {
     Context "Version" {
         It "<ToolName>" -TestCases @(
-            if (Test-IsWin25) {
-                @{ ToolName = "mongos" }
-            } else {
-                @{ ToolName = "mongo" }
-            }
+            @{ ToolName = "mongosh" }
             @{ ToolName = "mongod" }
         ) {
             $toolsetVersion = (Get-ToolsetContent).mongodb.version
-            (& $ToolName --version)[2].Split('"')[-2] | Should -BeLike "$toolsetVersion*"
+            $versionOutput = & $ToolName --version | Out-String
+            $version = ($versionOutput | Select-String -Pattern '\d+\.\d+\.\d+' -AllMatches).Matches.Value
+            $version | Should -BeLike "$toolsetVersion*"
         }
     }
+}
+
 
     Context "Service" {
         $mongoService = Get-Service -Name mongodb -ErrorAction Ignore
@@ -30,7 +30,7 @@ Describe "MongoDB" {
         }
     }
 
-    Context "Shell" -Skip:(-not (Test-IsWin25)) {
+    Context "Shell" {
         It "mongosh" {
             "mongosh --version" | Should -ReturnZeroExitCode
         }

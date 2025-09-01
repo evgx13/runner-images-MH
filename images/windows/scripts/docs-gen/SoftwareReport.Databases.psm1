@@ -18,20 +18,34 @@ function Get-PostgreSQLTable
     )
 }
 
-function Get-MongoDBTable
-{
-    $name = "MongoDB"
+function Get-MongoDBTable {
+    $serviceName = "MongoDB"
+    $mongoService = Get-Service -Name $serviceName -ErrorAction SilentlyContinue
+
+    # Choose command based on Windows version (example logic)
     if (Test-IsWin25) {
         $command = "mongod"
-    } else {
-        $command = "mongo"
     }
-    $mongoService = Get-Service -Name $name
-    $mongoVersion = (Get-Command -Name $command).Version.ToString()
+    else {
+        $command = "mongosh"
+    }
+
+    $version = $null
+    $cmdPath = Get-Command -Name $command -ErrorAction SilentlyContinue
+    if ($cmdPath) {
+        $versionOutput = & $command --version 2>&1
+        $pattern = '\d+\.\d+\.\d+'
+        $match = ($versionOutput | Select-String -Pattern $pattern -AllMatches |
+                  ForEach-Object { $_.Matches } | ForEach-Object { $_.Value })
+        if ($match) {
+            $version = $match[0]
+        }
+    }
+
     return [PSCustomObject]@{
-        Version = $mongoVersion
-        ServiceName = $name
-        ServiceStatus = $mongoService.Status
-        ServiceStartType = $mongoService.StartType
+        Version          = $version
+        ServiceName      = $serviceName
+        ServiceStatus    = if ($mongoService) { $mongoService.Status } else { "NotInstalled" }
+        ServiceStartType = if ($mongoService) { $mongoService.StartType } else { "NotInstalled" }
     }
 }
