@@ -1,7 +1,11 @@
 Describe "MongoDB" {
     Context "Version" {
         It "<ToolName>" -TestCases @(
-            @{ ToolName = "mongosh" }
+            if (Test-IsWin25) {
+                @{ ToolName = "mongos" }
+            } else {
+                @{ ToolName = "mongosh" }
+            }
             @{ ToolName = "mongod" }
         ) {
             $toolsetVersion = (Get-ToolsetContent).mongodb.version
