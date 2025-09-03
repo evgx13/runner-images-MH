@@ -1,6 +1,6 @@
 ####################################################################################
 ##  File:  Install-MongoDB.ps1
-##  Desc:  Install MongoDB
+##  Desc:  Install MongoDB and mongosh, update PATH accordingly
 ####################################################################################
 
 # Install mongodb package
@@ -26,7 +26,7 @@ Install-Binary `
     -ExtraInstallArgs @('TARGETDIR=C:\PROGRA~1\MongoDB ADDLOCAL=ALL') `
     -ExpectedSubject 'CN="MONGODB, INC.", O="MONGODB, INC.", L=New York, S=New York, C=US'
 
-# Add mongodb to the PATH
+# Add MongoDB server (mongod) to the PATH
 $mongoPath = (Get-CimInstance Win32_Service -Filter "Name LIKE 'mongodb'").PathName
 $mongoBin = Split-Path -Path $mongoPath.split('"')[1]
 Add-MachinePathItem "$mongoBin"
@@ -39,8 +39,8 @@ $mongodbService.WaitForStatus('Running', '00:01:00')
 Stop-Service $mongodbService
 $mongodbService | Set-Service -StartupType Disabled
 
-# Install mongodb shell for mongodb > 5 version
-if (Test-IsWin25) {
+# Install mongodb shell (mongosh) for mongodb > 5 version
+if (Test-IsWin22 -or Test-IsWin25) {
     $mongoshVersion = (Get-GithubReleasesByVersion -Repo "mongodb-js/mongosh" -Version "latest").version
 
     $mongoshDownloadUrl = Resolve-GithubReleaseAssetUrl `
@@ -52,6 +52,13 @@ if (Test-IsWin25) {
         -Url $mongoshDownloadUrl `
         -ExtraInstallArgs @('ALLUSERS=1') `
         -ExpectedSubject 'CN="MongoDB, Inc.", O="MongoDB, Inc.", L=New York, S=New York, C=US'
+
+    # Add mongosh to the PATH
+    $mongoshBin = "C:\Program Files\MongoDB\mongosh\bin"
+    if (Test-Path $mongoshBin) {
+        Add-MachinePathItem $mongoshBin
+    }
 }
 
+# Run MongoDB Pester tests
 Invoke-PesterTests -TestFile "Databases" -TestName "MongoDB"

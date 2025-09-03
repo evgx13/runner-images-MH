@@ -21,13 +21,13 @@ function Get-PostgreSQLTable
 function Get-MongoDBTable
 {
     $name = "MongoDB"
-    if (Test-IsWin25) {
-        $command = "mongod"
+    if (Test-IsWin25 -or Test-IsWin22) {
+        $command = "mongosh"
     } else {
         $command = "mongo"
     }
     $mongoService = Get-Service -Name $name
-    $mongoVersion = (Get-Command -Name $command).Version.ToString()
+    $mongoVersion = (& $command --version) -split '"' | Select-Object -Index 1
     return [PSCustomObject]@{
         Version = $mongoVersion
         ServiceName = $name
