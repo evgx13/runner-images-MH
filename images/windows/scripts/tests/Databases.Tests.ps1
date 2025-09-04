@@ -21,7 +21,6 @@ Describe "MongoDB" {
             $version | Should -BeLike "$toolsetVersion*"
         }
     }
-}
 
     
     Context "Service" {
@@ -46,6 +45,7 @@ Describe "MongoDB" {
             & mongosh --version | Should -ReturnZeroExitCode
         }
     }
+}
 
 
 Describe "PostgreSQL" {
