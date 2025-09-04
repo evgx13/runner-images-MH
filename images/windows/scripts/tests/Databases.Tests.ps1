@@ -1,9 +1,9 @@
 Describe "MongoDB" {
     Context "Version" {
         It "<ToolName>" -TestCases @(
-            if (Test-IsWin25) {
+            if (Test-IsWin22) {
                 @{ ToolName = "mongos" }
-            } elseif (Test-IsWin22) {
+            } elseif (Test-IsWin25) {
                 @{ ToolName = "mongos" }
             } else {
                 @{ ToolName = "mongo" }
