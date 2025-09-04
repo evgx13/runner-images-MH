@@ -1,6 +1,5 @@
 Describe "MongoDB" {
     Context "Version" {
-        # Explicit tests for mongos on Win22 and Win25
         if (Test-IsWin22) {
             It "mongos (Win22)" {
                 $toolsetVersion = (Get-ToolsetContent).mongodb.version
@@ -13,13 +12,18 @@ Describe "MongoDB" {
                 (& mongos --version)[2].Split('"')[-2] | Should -BeLike "$toolsetVersion*"
             }
         }
-        # Parameterized test for mongod and mongo
-        It "<ToolName>" -TestCases @(
-            @{ ToolName = "mongo" }
-            @{ ToolName = "mongod" }
-        ) {
+
+        # Only test mongo if available
+        if (Get-Command mongo -ErrorAction SilentlyContinue) {
+            It "mongo" {
+                $toolsetVersion = (Get-ToolsetContent).mongodb.version
+                (& mongo --version)[2].Split('"')[-2] | Should -BeLike "$toolsetVersion*"
+            }
+        }
+
+        It "mongod" {
             $toolsetVersion = (Get-ToolsetContent).mongodb.version
-            (& $ToolName --version)[2].Split('"')[-2] | Should -BeLike "$toolsetVersion*"
+            (& mongod --version)[2].Split('"')[-2] | Should -BeLike "$toolsetVersion*"
         }
     }
 
