@@ -11,10 +11,13 @@ Describe "MongoDB" {
             @{ ToolName = "mongod" }
         ) {
             $toolsetVersion = (Get-ToolsetContent).mongodb.version
-            (& $ToolName --version)[2].Split('"')[-2] | Should -BeLike "$toolsetVersion*"
+            $output = & $ToolName --version
+            $joinedOutput = $output -join "`n"
+            $version = $joinedOutput.Split('"')[-2]
+            $version | Should -BeLike "$toolsetVersion*"
         }
     }
-
+    
     Context "Service" {
         $mongoService = Get-Service -Name mongodb -ErrorAction Ignore
         $mongoServiceTests = @{
