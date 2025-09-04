@@ -1,17 +1,26 @@
 Describe "MongoDB" {
     Context "Version" {
-        It "<ToolName>" -TestCases @(
-            if (Test-IsWin25) {
-                @{ ToolName = "mongos" }
-            } else {
-                @{ ToolName = "mongo" }
+        # Test for mongos only on Win22
+        if (Test-IsWin22) {
+            It "mongos (Win22)" {
+                $toolsetVersion = (Get-ToolsetContent).mongodb.version
+                (& mongos --version)[2].Split('"')[-2] | Should -BeLike "$toolsetVersion*"
             }
-            @{ ToolName = "mongod" }
-        ) {
+        }
+        # Test for mongos only on Win25 
+        if (Test-IsWin25) {
+            It "mongos (Win25)" {
+                $toolsetVersion = (Get-ToolsetContent).mongodb.version
+                (& mongos --version)[2].Split('"')[-2] | Should -BeLike "$toolsetVersion*"
+            }
+        }
+        # Test for mongod on all platforms
+        It "mongod" {
             $toolsetVersion = (Get-ToolsetContent).mongodb.version
-            (& $ToolName --version)[2].Split('"')[-2] | Should -BeLike "$toolsetVersion*"
+            (& mongod --version)[2].Split('"')[-2] | Should -BeLike "$toolsetVersion*"
         }
     }
+}
 
     Context "Service" {
         $mongoService = Get-Service -Name mongodb -ErrorAction Ignore
