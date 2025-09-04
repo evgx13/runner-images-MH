@@ -1,10 +1,10 @@
 Describe "MongoDB" {
     Context "Version" {
         It "<ToolName>" -TestCases @(
-            if (Test-IsWin25) {
-                @{ ToolName = "mongos" }
-            } elseif (Test-IsWin22) {
+            if (Test-IsWin22) {
                 @{ ToolName = "mongosh" }
+            } elseif (Test-IsWin25) {
+                @{ ToolName = "mongos" }
             } else {
                 @{ ToolName = "mongo" }
             }
@@ -13,10 +13,16 @@ Describe "MongoDB" {
             $toolsetVersion = (Get-ToolsetContent).mongodb.version
             $output = & $ToolName --version
             $joinedOutput = $output -join "`n"
-            $version = $joinedOutput.Split('"')[-2]
+
+            # Regular expression matches typical version patterns: 7.0.23, 2.5.1 etc.
+            $match = $joinedOutput -match '(\d+\.\d+\.\d+)'
+            $version = if ($match) { $matches[1] } else { $null }
+
             $version | Should -BeLike "$toolsetVersion*"
         }
     }
+}
+
     
     Context "Service" {
         $mongoService = Get-Service -Name mongodb -ErrorAction Ignore
