@@ -1,11 +1,21 @@
 Describe "MongoDB" {
     Context "Version" {
-        It "<ToolName>" -TestCases @(
-            if (Test-IsWin25) {
-                @{ ToolName = "mongos" }
-            } else {
-                @{ ToolName = "mongo" }
+        # Explicit tests for mongos on Win22 and Win25
+        if (Test-IsWin22) {
+            It "mongos (Win22)" {
+                $toolsetVersion = (Get-ToolsetContent).mongodb.version
+                (& mongos --version)[2].Split('"')[-2] | Should -BeLike "$toolsetVersion*"
             }
+        }
+        if (Test-IsWin25) {
+            It "mongos (Win25)" {
+                $toolsetVersion = (Get-ToolsetContent).mongodb.version
+                (& mongos --version)[2].Split('"')[-2] | Should -BeLike "$toolsetVersion*"
+            }
+        }
+        # Parameterized test for mongod and mongo
+        It "<ToolName>" -TestCases @(
+            @{ ToolName = "mongo" }
             @{ ToolName = "mongod" }
         ) {
             $toolsetVersion = (Get-ToolsetContent).mongodb.version
@@ -30,7 +40,7 @@ Describe "MongoDB" {
         }
     }
 
-    Context "Shell" -Skip:(-not (Test-IsWin25)) {
+    Context "Shell" -Skip:(-not (Test-IsWin22) -or -not (Test-IsWin25)) {
         It "mongosh" {
             "mongosh --version" | Should -ReturnZeroExitCode
         }
