@@ -44,7 +44,6 @@ Describe "MongoDB" {
             "mongosh --version" | Should -ReturnZeroExitCode
         }
     }
-}
 
 Describe "PostgreSQL" {
     $psqlTests = @(
